@@ -1,1 +1,83 @@
-"use strict";var __extends=this&&this.__extends||function(){var n=function(e,t){return(n=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)};return function(e,t){function r(){this.constructor=e}n(e,t),e.prototype=null===t?Object.create(t):(r.prototype=t.prototype,new r)}}(),__assign=this&&this.__assign||function(){return(__assign=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o]);return e}).apply(this,arguments)},__rest=this&&this.__rest||function(e,t){var r={};for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&t.indexOf(n)<0&&(r[n]=e[n]);if(null!=e&&"function"==typeof Object.getOwnPropertySymbols){var o=0;for(n=Object.getOwnPropertySymbols(e);o<n.length;o++)t.indexOf(n[o])<0&&Object.prototype.propertyIsEnumerable.call(e,n[o])&&(r[n[o]]=e[n[o]])}return r};exports.__esModule=!0;var React=require("react"),webWorkerScript="\n  self.addEventListener('message', event => {\n    const url = event.data;\n    fetch(url, {\n        method: 'GET',\n        mode: 'no-cors',\n        cache: 'default'\n    }).then(response => {\n        return response.blob();\n    }).then(_ => postMessage(url)).catch(console.error);\n  })\n",createWorker=function(e){return new Worker(URL.createObjectURL(new Blob([e],{type:"application/javascript"})))},ImgWorker=function(t){function e(e){var r=t.call(this,e)||this;return r.image=void 0,r.state={isLoading:!0,src:""},r.worker=createWorker(webWorkerScript),r.loadImage=function(e){var t=new Image;(r.image=t).src=e,void 0!==t.decode?t.decode().then(r.onLoad).catch(r.onLoad):t.onload=r.onLoad},r.onLoad=function(){r.setState({src:r.image.src,isLoading:!1})},r.worker.onmessage=function(e){r.loadImage(e.data)},r}return __extends(e,t),e.prototype.componentDidMount=function(){this.worker.postMessage(this.props.src)},e.prototype.componentWillUnmount=function(){this.image&&(this.image.onload=null,this.image.onerror=null),this.worker.terminate()},e.prototype.render=function(){var e=this.props,t=(e.boxProps,e.renderLoading),r=(e.src,__rest(e,["boxProps","renderLoading","src"])),n=this.state,o=n.isLoading,a=n.src;return React.createElement(React.Fragment,null,t&&o&&React.createElement(t,{key:"img-worker-loading",isLoaing:o}),!o&&React.createElement("img",__assign({key:"img-worker",alt:"",src:a},r)))},e}(React.Component);exports.ImgWorker=ImgWorker;
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+exports.__esModule = true;
+var React = require("react");
+var webWorkerScript = "\n  self.addEventListener('message', event => {\n    const url = event.data;\n    fetch(url, {\n        method: 'GET',\n        mode: 'no-cors',\n        cache: 'default'\n    }).then(response => {\n        return response.blob();\n    }).then(_ => postMessage(url)).catch(console.error);\n  })\n";
+var createWorker = function (script) {
+    return new Worker(URL.createObjectURL(new Blob([script], { type: 'application/javascript' })));
+};
+var ImgWorker = /** @class */ (function (_super) {
+    __extends(ImgWorker, _super);
+    function ImgWorker(props) {
+        var _this = _super.call(this, props) || this;
+        _this.image = undefined;
+        _this.state = {
+            isLoading: true,
+            src: ''
+        };
+        _this.worker = createWorker(webWorkerScript);
+        _this.loadImage = function (url) {
+            var image = new Image();
+            _this.image = image;
+            image.src = url;
+            image.decode !== undefined
+                ? image
+                    .decode()
+                    .then(_this.onLoad)["catch"](_this.onLoad)
+                : (image.onload = _this.onLoad);
+        };
+        _this.onLoad = function () {
+            _this.setState({
+                src: _this.image.src,
+                isLoading: false
+            });
+        };
+        _this.worker.onmessage = function (event) {
+            _this.loadImage(event.data);
+        };
+        return _this;
+    }
+    ImgWorker.prototype.componentDidMount = function () {
+        this.worker.postMessage(this.props.src);
+    };
+    ImgWorker.prototype.componentWillUnmount = function () {
+        if (this.image) {
+            this.image.onload = null;
+            this.image.onerror = null;
+        }
+        this.worker.terminate();
+    };
+    ImgWorker.prototype.render = function () {
+        var _a = this.props, boxProps = _a.boxProps, Loading = _a.renderLoading, _src = _a.src, rest = __rest(_a, ["boxProps", "renderLoading", "src"]);
+        var _b = this.state, isLoading = _b.isLoading, src = _b.src;
+        return (<>
+        {Loading && isLoading && (<Loading key="img-worker-loading" isLoaing={isLoading}/>)}
+        {!isLoading && <img key="img-worker" alt="" src={src} {...rest}/>}
+      </>);
+    };
+    return ImgWorker;
+}(React.Component));
+exports.ImgWorker = ImgWorker;
