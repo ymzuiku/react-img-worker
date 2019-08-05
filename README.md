@@ -2,6 +2,14 @@
 
 词库实现了 image 的 worker 加载、decode 解码，及 miniSrc 和 src 竞速加载，并且对 worker 和 decode 做了降级处理
 
+## 安装
+
+```sh
+$ yarn add react-img-worker
+```
+
+## 使用
+
 使用默认 image loader:
 
 ```tsx
