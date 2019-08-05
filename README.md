@@ -2,7 +2,8 @@
 
 此库实现了 image 的 worker 加载、decode 解码，及 miniSrc 和 src 竞速加载，并且对 worker 和 decode 做了降级处理
 
-> 注意，在性能较低的机器，开启 worker 进程下载的开销大于直接使用主进程下载的开销
+> 注意，在性能较低的机器，开启 worker 进程下载的开销大于直接使用主进程下载的开销;
+> 使用 worker 需要主动传递 worker 属性为 true 开启
 
 ## 安装
 
