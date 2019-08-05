@@ -1,23 +1,22 @@
 import * as React from 'react';
 
-const webWorkerScript = `
-  self.addEventListener('message', event => {
-    const url = event.data;
-    fetch(url, {
-        method: 'GET',
-        mode: 'no-cors',
-        cache: 'default'
-    }).then(response => {
-        return response.blob();
-    }).then(_ => postMessage(url)).catch(console.error);
-  })
-`;
-
-const createWorker = (script: string) => {
-  return new Worker(
-    URL.createObjectURL(new Blob([script], { type: 'application/javascript' }))
-  );
-};
+const blobUrl = new Blob(
+  [
+    `
+self.addEventListener('message', event => {
+  const [url, type] = event.data;
+  fetch(url, {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'default'
+  }).then(response => {
+      return response.blob();
+  }).then(_ => postMessage([url, type])).catch(console.error);
+})
+`,
+  ],
+  { type: 'application/javascript' }
+);
 
 interface IImgWorkerProps
   extends React.DetailedHTMLProps<
@@ -30,6 +29,7 @@ interface IImgWorkerProps
   >;
   miniSrc?: string;
   renderLoading?: any;
+  worker?: boolean;
 }
 
 interface IImgWorkerState {
@@ -42,25 +42,43 @@ export class ImgWorker extends React.Component<
   IImgWorkerState
 > {
   public image: HTMLImageElement = undefined as any;
-  public needReloadSrc = !!this.props.miniSrc;
+  public isLoadedSrcLock = false;
   public state = {
     isLoading: true,
     src: '',
   };
-  public worker = createWorker(webWorkerScript);
+  public worker: Worker = null as any;
   public constructor(props: IImgWorkerProps) {
     super(props);
-    this.worker.onmessage = (event: any) => {
-      this.loadImage(event.data);
-    };
+
+    // 如果使用 worker 并且浏览器支持 worker
+    if (this.props.worker && typeof Worker !== 'undefined') {
+      this.worker = new Worker(URL.createObjectURL(blobUrl));
+      this.worker.addEventListener('message', event => {
+        const [url, type] = event.data;
+
+        this.loadImage(url, type);
+      });
+    }
   }
 
   public componentDidMount() {
-    // 如果有minSrc，先加载minSrc
-    if (this.needReloadSrc) {
-      this.worker.postMessage(this.props.miniSrc);
-    } else {
-      this.worker.postMessage(this.props.src);
+    if (this.props.miniSrc) {
+      if (this.worker) {
+        this.worker.postMessage([this.props.miniSrc, 'miniSrc']);
+      } else {
+        this.loadImage(this.props.miniSrc, 'miniSrc');
+      }
+    }
+
+    if (this.props.src) {
+      if (this.worker) {
+        this.worker.postMessage(
+          this.worker.postMessage([this.props.src, 'src'])
+        );
+      } else {
+        this.loadImage(this.props.src, 'miniSrc');
+      }
     }
   }
 
@@ -69,15 +87,25 @@ export class ImgWorker extends React.Component<
       this.image.onload = null;
       this.image.onerror = null;
     }
-
-    this.worker.terminate();
+    if (this.worker) {
+      this.worker.terminate();
+    }
   }
 
-  public loadImage = (url: string) => {
+  public loadImage = (url: string, type: string) => {
+    // 如果 src 已经被设置，拦截 miniSrc 的设置
+    if (this.isLoadedSrcLock) {
+      return;
+    }
+    if (type === 'src') {
+      this.isLoadedSrcLock = true;
+    }
+
     const image = new Image();
     this.image = image;
 
     image.src = url;
+    image.decoding = 'async';
     image.decode !== undefined
       ? image
           .decode()
@@ -87,19 +115,10 @@ export class ImgWorker extends React.Component<
   };
 
   public onLoad = () => {
-    this.setState(
-      {
-        src: this.image.src,
-        isLoading: false,
-      },
-      () => {
-        // 如果有minSrc，先加载minSrc
-        if (this.needReloadSrc) {
-          this.needReloadSrc = false;
-          this.worker.postMessage(this.props.src);
-        }
-      }
-    );
+    this.setState({
+      src: this.image.src,
+      isLoading: false,
+    });
   };
 
   public render() {

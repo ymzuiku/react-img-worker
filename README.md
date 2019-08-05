@@ -1,6 +1,8 @@
 # 使用 worker 加载 image
 
-此库仅是在 [https://github.com/nitish24p/react-worker-image](https://github.com/nitish24p/react-worker-image) 的基础上修改了部分逻辑，和添加 typescript 支持
+词库实现了 image 的 worker 加载、decode 解码，及 miniSrc 和 src 竞速加载，并且对 worker 和 decode 做了降级处理
+
+使用默认 image loader:
 
 ```tsx
 import { ImgWorker } from 'react-img-worker';
@@ -10,14 +12,30 @@ export default () => {
 };
 ```
 
-支持 mini 图片，会先加载 miniSrc, 再加载 src
+使用 worker loader:
+
+```tsx
+import { ImgWorker } from 'react-img-worker';
+
+export default () => {
+  return <ImgWorker worker src="http://example.png" />;
+};
+```
+
+支持 mini 图片，如果 设置了 miniSrc 会并行加载 miniSrc 和 src；若 miniSrc 优先加载完，显示 miniSrc；若 src 优先加载完，miniSrc 的回调会被中断.
+
+使用 worker + miniSrc + src：
 
 ```tsx
 import { ImgWorker } from 'react-img-worker';
 
 export default () => {
   return (
-    <ImgWorker miniSrc="http://example.mini.png" src="http://example.png" />
+    <ImgWorker
+      worker
+      miniSrc="http://example.mini.png"
+      src="http://example.png"
+    />
   );
 };
 ```

@@ -3,6 +3,7 @@ interface IImgWorkerProps extends React.DetailedHTMLProps<React.ImgHTMLAttribute
     boxProps?: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>;
     miniSrc?: string;
     renderLoading?: any;
+    worker?: boolean;
 }
 interface IImgWorkerState {
     isLoading: boolean;
@@ -10,7 +11,7 @@ interface IImgWorkerState {
 }
 export declare class ImgWorker extends React.Component<IImgWorkerProps, IImgWorkerState> {
     image: HTMLImageElement;
-    needReloadSrc: boolean;
+    isLoadedSrcLock: boolean;
     state: {
         isLoading: boolean;
         src: string;
@@ -19,7 +20,7 @@ export declare class ImgWorker extends React.Component<IImgWorkerProps, IImgWork
     constructor(props: IImgWorkerProps);
     componentDidMount(): void;
     componentWillUnmount(): void;
-    loadImage: (url: string) => void;
+    loadImage: (url: string, type: string) => void;
     onLoad: () => void;
     render(): JSX.Element;
 }
