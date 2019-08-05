@@ -99,6 +99,8 @@ export class ImgWorker extends React.Component<
     }
     if (type === 'src') {
       this.isLoadedSrcLock = true;
+      this.worker.terminate();
+      this.worker = null as any;
     }
 
     const image = new Image();
