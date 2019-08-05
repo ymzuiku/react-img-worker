@@ -13,7 +13,7 @@ $ yarn add react-img-worker
 
 ## 使用
 
-使用默认 image loader:
+使用默认 image loader, ImgWorker 保留了 `<img />` 标签原有的所有 api
 
 ```tsx
 import { ImgWorker } from 'react-img-worker';
