@@ -33,7 +33,7 @@ export default () => {
 };
 ```
 
-支持 mini 图片，如果 设置了 miniSrc 会并行加载 miniSrc 和 src；若 miniSrc 优先加载完，显示 miniSrc；若 src 优先加载完会直接关闭 worker 并且拦截后续的图片更新。
+支持 mini 图片，如果 设置了 miniSrc 会并行加载 miniSrc 和 src；若 miniSrc 优先加载完，显示 miniSrc；若 src 优先加载完会拦截此次后续的图片更新。
 
 使用 worker + miniSrc + src：
 

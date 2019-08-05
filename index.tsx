@@ -63,22 +63,23 @@ export class ImgWorker extends React.Component<
   }
 
   public componentDidMount() {
-    if (this.props.miniSrc) {
-      if (this.worker) {
-        this.worker.postMessage([this.props.miniSrc, 'miniSrc']);
-      } else {
-        this.loadImage(this.props.miniSrc, 'miniSrc');
-      }
+    this.postMessage(this.props);
+  }
+
+  // 为了兼容旧版 react 使用 componentWillReceiveProps
+  public componentWillReceiveProps(nextProps: IImgWorkerProps) {
+    let isPostMessage = false;
+    if (nextProps.miniSrc !== this.props.miniSrc) {
+      isPostMessage = true;
+    }
+    if (nextProps.src !== this.props.src) {
+      isPostMessage = true;
     }
 
-    if (this.props.src) {
-      if (this.worker) {
-        this.worker.postMessage(
-          this.worker.postMessage([this.props.src, 'src'])
-        );
-      } else {
-        this.loadImage(this.props.src, 'miniSrc');
-      }
+    // 如果 src 或 miniSrc 更新，重新请求
+    if (isPostMessage) {
+      this.isLoadedSrcLock = false;
+      this.postMessage(nextProps);
     }
   }
 
@@ -93,14 +94,12 @@ export class ImgWorker extends React.Component<
   }
 
   public loadImage = (url: string, type: string) => {
-    // 如果 src 已经被设置，拦截 miniSrc 的设置
+    // 如果 src 已经被设置，拦截后续的更新
     if (this.isLoadedSrcLock) {
       return;
     }
     if (type === 'src') {
       this.isLoadedSrcLock = true;
-      this.worker.terminate();
-      this.worker = null as any;
     }
 
     const image = new Image();
@@ -121,6 +120,24 @@ export class ImgWorker extends React.Component<
       src: this.image.src,
       isLoading: false,
     });
+  };
+
+  public postMessage = (props: IImgWorkerProps) => {
+    if (props.miniSrc) {
+      if (this.worker) {
+        this.worker.postMessage([props.miniSrc, 'miniSrc']);
+      } else {
+        this.loadImage(props.miniSrc, 'miniSrc');
+      }
+    }
+
+    if (props.src) {
+      if (this.worker) {
+        this.worker.postMessage(this.worker.postMessage([props.src, 'src']));
+      } else {
+        this.loadImage(props.src, 'miniSrc');
+      }
+    }
   };
 
   public render() {

@@ -19,9 +19,11 @@ export declare class ImgWorker extends React.Component<IImgWorkerProps, IImgWork
     worker: Worker;
     constructor(props: IImgWorkerProps);
     componentDidMount(): void;
+    componentWillReceiveProps(nextProps: IImgWorkerProps): void;
     componentWillUnmount(): void;
     loadImage: (url: string, type: string) => void;
     onLoad: () => void;
+    postMessage: (props: IImgWorkerProps) => void;
     render(): JSX.Element;
 }
 export {};
