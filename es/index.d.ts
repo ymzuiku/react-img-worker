@@ -1,6 +1,7 @@
 import * as React from 'react';
 interface IImgWorkerProps extends React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> {
     boxProps?: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>;
+    miniSrc?: string;
     renderLoading?: any;
 }
 interface IImgWorkerState {
@@ -9,6 +10,7 @@ interface IImgWorkerState {
 }
 export declare class ImgWorker extends React.Component<IImgWorkerProps, IImgWorkerState> {
     image: HTMLImageElement;
+    needReloadSrc: boolean;
     state: {
         isLoading: boolean;
         src: string;

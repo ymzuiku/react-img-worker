@@ -28,6 +28,7 @@ interface IImgWorkerProps
     React.ImgHTMLAttributes<HTMLImageElement>,
     HTMLImageElement
   >;
+  miniSrc?: string;
   renderLoading?: any;
 }
 
@@ -41,7 +42,7 @@ export class ImgWorker extends React.Component<
   IImgWorkerState
 > {
   public image: HTMLImageElement = undefined as any;
-
+  public needReloadSrc = !!this.props.miniSrc;
   public state = {
     isLoading: true,
     src: '',
@@ -55,7 +56,12 @@ export class ImgWorker extends React.Component<
   }
 
   public componentDidMount() {
-    this.worker.postMessage(this.props.src);
+    // 如果有minSrc，先加载minSrc
+    if (this.needReloadSrc) {
+      this.worker.postMessage(this.props.miniSrc);
+    } else {
+      this.worker.postMessage(this.props.src);
+    }
   }
 
   public componentWillUnmount() {
@@ -81,10 +87,19 @@ export class ImgWorker extends React.Component<
   };
 
   public onLoad = () => {
-    this.setState({
-      src: this.image.src,
-      isLoading: false,
-    });
+    this.setState(
+      {
+        src: this.image.src,
+        isLoading: false,
+      },
+      () => {
+        // 如果有minSrc，先加载minSrc
+        if (this.needReloadSrc) {
+          this.needReloadSrc = false;
+          this.worker.postMessage(this.props.src);
+        }
+      }
+    );
   };
 
   public render() {

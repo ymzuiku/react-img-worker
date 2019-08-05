@@ -9,3 +9,15 @@ export default () => {
   return <ImgWorker src="http://example.png" />;
 };
 ```
+
+支持 mini 图片，会先加载 miniSrc, 再加载 src
+
+```tsx
+import { ImgWorker } from 'react-img-worker';
+
+export default () => {
+  return (
+    <ImgWorker miniSrc="http://example.mini.png" src="http://example.png" />
+  );
+};
+```
