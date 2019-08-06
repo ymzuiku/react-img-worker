@@ -28,6 +28,7 @@ interface IImgWorkerProps
     HTMLImageElement
   >;
   miniSrc?: string;
+  objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
   renderLoading?: any;
   worker?: boolean;
 }
@@ -41,6 +42,10 @@ export class ImgWorker extends React.Component<
   IImgWorkerProps,
   IImgWorkerState
 > {
+  public static defaultProps = {
+    objectFit: 'cover',
+  };
+
   public div: any = null;
   public image: HTMLImageElement = new Image();
   public isLoadedSrcLock = false;
@@ -54,6 +59,7 @@ export class ImgWorker extends React.Component<
     this.image.style.width = '100%';
     this.image.style.height = '100%';
     this.image.style.display = 'none';
+    this.image.style.objectFit = this.props.objectFit!;
 
     // 如果使用 worker 并且浏览器支持 worker
     if (this.props.worker && typeof Worker !== 'undefined') {
@@ -72,6 +78,9 @@ export class ImgWorker extends React.Component<
   }
 
   public componentWillReceiveProps(nextProps: IImgWorkerProps) {
+    if (nextProps.objectFit !== this.props.objectFit) {
+      this.image.style.objectFit = nextProps.objectFit!;
+    }
     let isPostMessage = false;
     if (nextProps.miniSrc !== this.props.miniSrc) {
       isPostMessage = true;

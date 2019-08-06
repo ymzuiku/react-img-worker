@@ -46,6 +46,7 @@ interface IImgWorkerProps
     HTMLImageElement
   >;
   miniSrc?: string;
+  objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
   renderLoading?: any;
   worker?: boolean;
 }
@@ -59,6 +60,10 @@ export class ImgWorker extends React.Component<
   IImgWorkerProps,
   IImgWorkerState
 > {
+  public static defaultProps = {
+    objectFit: 'cover',
+  };
+
   public div: any = null;
   public image: HTMLImageElement = new Image();
   public isLoadedSrcLock = false;
@@ -72,6 +77,7 @@ export class ImgWorker extends React.Component<
     this.image.style.width = '100%';
     this.image.style.height = '100%';
     this.image.style.display = 'none';
+    this.image.style.objectFit = this.props.objectFit!;
 
     // 如果使用 worker 并且浏览器支持 worker
     if (this.props.worker && typeof Worker !== 'undefined') {
@@ -90,6 +96,9 @@ export class ImgWorker extends React.Component<
   }
 
   public componentWillReceiveProps(nextProps: IImgWorkerProps) {
+    if (nextProps.objectFit !== this.props.objectFit) {
+      this.image.style.objectFit = nextProps.objectFit!;
+    }
     let isPostMessage = false;
     if (nextProps.miniSrc !== this.props.miniSrc) {
       isPostMessage = true;
@@ -173,7 +182,6 @@ export class ImgWorker extends React.Component<
     );
   }
 }
-
 ```
 
 代码是 typescript 编写的，这是为了组件发版可以更简便的生成.d.ts 文件，内容很简单，其中关键在于两处：
