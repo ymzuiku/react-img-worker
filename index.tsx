@@ -41,7 +41,8 @@ export class ImgWorker extends React.Component<
   IImgWorkerProps,
   IImgWorkerState
 > {
-  public image: HTMLImageElement = undefined as any;
+  public div: any = null;
+  public image: HTMLImageElement = new Image();
   public isLoadedSrcLock = false;
   public state = {
     isLoading: true,
@@ -50,6 +51,9 @@ export class ImgWorker extends React.Component<
   public worker: Worker = null as any;
   public constructor(props: IImgWorkerProps) {
     super(props);
+    this.image.style.width = '100%';
+    this.image.style.height = '100%';
+    this.image.style.display = 'none';
 
     // 如果使用 worker 并且浏览器支持 worker
     if (this.props.worker && typeof Worker !== 'undefined') {
@@ -63,10 +67,10 @@ export class ImgWorker extends React.Component<
   }
 
   public componentDidMount() {
+    this.div.appendChild(this.image);
     this.postMessage(this.props);
   }
 
-  // 为了兼容旧版 react 使用 componentWillReceiveProps
   public componentWillReceiveProps(nextProps: IImgWorkerProps) {
     let isPostMessage = false;
     if (nextProps.miniSrc !== this.props.miniSrc) {
@@ -102,20 +106,18 @@ export class ImgWorker extends React.Component<
       this.isLoadedSrcLock = true;
     }
 
-    const image = new Image();
-    this.image = image;
-
-    image.src = url;
-    image.decoding = 'async';
-    image.decode !== undefined
-      ? image
+    this.image.src = url;
+    this.image.decoding = 'async';
+    this.image.decode !== undefined
+      ? this.image
           .decode()
           .then(this.onLoad)
           .catch(this.onLoad)
-      : (image.onload = this.onLoad);
+      : (this.image.onload = this.onLoad);
   };
 
   public onLoad = () => {
+    this.image.style.display = 'block';
     this.setState({
       src: this.image.src,
       isLoading: false,
@@ -145,12 +147,11 @@ export class ImgWorker extends React.Component<
     const { isLoading, src } = this.state;
 
     return (
-      <>
+      <div ref={r => (this.div = r)} {...rest}>
         {Loading && isLoading && (
           <Loading key="img-worker-loading" isLoaing={isLoading} />
         )}
-        {!isLoading && <img key="img-worker" alt="" src={src} {...rest} />}
-      </>
+      </div>
     );
   }
 }

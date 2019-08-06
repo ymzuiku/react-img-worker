@@ -10,6 +10,7 @@ interface IImgWorkerState {
     src: string;
 }
 export declare class ImgWorker extends React.Component<IImgWorkerProps, IImgWorkerState> {
+    div: any;
     image: HTMLImageElement;
     isLoadedSrcLock: boolean;
     state: {
