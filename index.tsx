@@ -144,7 +144,7 @@ export class ImgWorker extends React.Component<
 
   public render() {
     const { boxProps, renderLoading: Loading, src: _src, ...rest } = this.props;
-    const { isLoading, src } = this.state;
+    const { isLoading } = this.state;
 
     return (
       <div ref={r => (this.div = r)} {...rest}>

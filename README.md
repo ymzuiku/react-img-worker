@@ -162,7 +162,7 @@ export class ImgWorker extends React.Component<
 
   public render() {
     const { boxProps, renderLoading: Loading, src: _src, ...rest } = this.props;
-    const { isLoading, src } = this.state;
+    const { isLoading } = this.state;
 
     return (
       <div ref={r => (this.div = r)} {...rest}>
@@ -173,6 +173,7 @@ export class ImgWorker extends React.Component<
     );
   }
 }
+
 ```
 
 代码是 typescript 编写的，这是为了组件发版可以更简便的生成.d.ts 文件，内容很简单，其中关键在于两处：
